@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+
+    .stopwatch {
+      text-align: center;
+      background: #333;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 300px;
+    }
+
+    .time {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .buttons button {
+      background: #ff5733;
+      border: none;
+      color: white;
+      font-size: 16px;
+      margin: 5px;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .buttons button:hover {
+      background: #e74c3c;
+    }
+
+    .laps {
+      margin-top: 20px;
+      text-align: left;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .laps ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .laps li {
+      background: #444;
+      color: #fff;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="stopwatch">
+    <div class="time" id="display">00:00:00</div>
+    <div class="buttons">
+      <button id="startPause">Start</button>
+      <button id="reset">Reset</button>
+      <button id="lap">Lap</button>
+    </div>
+    <div class="laps">
+      <h3>Laps:</h3>
+      <ul id="laps"></ul>
+    </div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+    let running = false;
+
+    const display = document.getElementById('display');
+    const startPauseButton = document.getElementById('startPause');
+    const resetButton = document.getElementById('reset');
+    const lapButton = document.getElementById('lap');
+    const lapsList = document.getElementById('laps');
+
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return (
+        String(hours).padStart(2, '0') +
+        ':' +
+        String(minutes).padStart(2, '0') +
+        ':' +
+        String(seconds).padStart(2, '0')
+      );
+    }
+
+    function updateDisplay() {
+      const currentTime = Date.now();
+      elapsedTime = currentTime - startTime;
+      display.textContent = formatTime(elapsedTime);
+    }
+
+    startPauseButton.addEventListener('click', () => {
+      if (!running) {
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(updateDisplay, 100);
+        startPauseButton.textContent = 'Pause';
+        running = true;
+      } else {
+        clearInterval(timerInterval);
+        startPauseButton.textContent = 'Start';
+        running = false;
+      }
+    });
+
+    resetButton.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      startTime = 0;
+      elapsedTime = 0;
+      running = false;
+      display.textContent = '00:00:00';
+      startPauseButton.textContent = 'Start';
+      lapsList.innerHTML = '';
+    });
+
+    lapButton.addEventListener('click', () => {
+      if (running) {
+        const lapTime = formatTime(elapsedTime);
+        const li = document.createElement('li');
+        li.textContent = `Lap: ${lapTime}`;
+        lapsList.appendChild(li);
+      }
+    });
+  </script>
+</body>
+</html>
